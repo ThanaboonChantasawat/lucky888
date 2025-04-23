@@ -16,8 +16,7 @@ class SlotGamePage extends StatefulWidget {
   State<SlotGamePage> createState() => _SlotGamePageState();
 }
 
-class _SlotGamePageState extends State<SlotGamePage>
-    with TickerProviderStateMixin {
+class _SlotGamePageState extends State<SlotGamePage> {
   // รายการสัญลักษณ์สล็อต
   List<String> symbols = ["8️⃣", "🍒", "💎", "🔔", "🍇"];
   int money = 10000; // เงินรวมเริ่มต้นของผู้เล่น
@@ -31,9 +30,6 @@ class _SlotGamePageState extends State<SlotGamePage>
   // ตารางสล็อต 3x3
   List<List<String>> slotGrid = List.generate(3, (_) => List.filled(3, ""));
 
-  late List<List<AnimationController>>
-  controllers; // (ใช้สำหรับ animation เฉยๆ)
-
   Map<List<int>, bool> winningCells = {}; // ตำแหน่งช่องที่ถูกรางวัล
 
   Timer? _betHoldTimer; // ตัวจับเวลาสำหรับกดค้างปุ่มเดิมพัน
@@ -41,18 +37,6 @@ class _SlotGamePageState extends State<SlotGamePage>
   @override
   void initState() {
     super.initState();
-
-    // เตรียม controllers (แม้จะไม่ได้ใช้ animation จริง)
-    controllers = List.generate(
-      3,
-      (_) => List.generate(
-        3,
-        (_) => AnimationController(
-          vsync: this,
-          duration: Duration(milliseconds: 0),
-        ),
-      ),
-    );
 
     // สุ่มค่าเริ่มต้นในตารางสล็อต
     slotGrid = List.generate(
@@ -196,12 +180,7 @@ class _SlotGamePageState extends State<SlotGamePage>
   }
 
   // สร้างกล่องสล็อตแต่ละช่อง
-  Widget buildSlotBox(
-    String symbol,
-    Animation<Offset> animation,
-    int row,
-    int col,
-  ) {
+  Widget buildSlotBox(String symbol, int row, int col) {
     bool isWinningCell = false;
     for (var position in winningCells.keys) {
       if (position[0] == row && position[1] == col) {
@@ -328,11 +307,6 @@ class _SlotGamePageState extends State<SlotGamePage>
   void dispose() {
     autoSpinTimer?.cancel();
     _betHoldTimer?.cancel();
-    for (var row in controllers) {
-      for (var controller in row) {
-        controller.dispose();
-      }
-    }
     super.dispose();
   }
 
@@ -477,17 +451,7 @@ class _SlotGamePageState extends State<SlotGamePage>
                                       width: slotBoxSize,
                                       height: slotBoxSize,
                                       margin: EdgeInsets.all(2),
-                                      child: buildSlotBox(
-                                        slotGrid[i][j],
-                                        controllers[i][j].drive(
-                                          Tween<Offset>(
-                                            begin: Offset.zero,
-                                            end: Offset.zero,
-                                          ),
-                                        ),
-                                        i,
-                                        j,
-                                      ),
+                                      child: buildSlotBox(slotGrid[i][j], i, j),
                                     ),
                                   ),
                                 ),
